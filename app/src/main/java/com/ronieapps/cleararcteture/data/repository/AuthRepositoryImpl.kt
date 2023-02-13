@@ -17,12 +17,17 @@ class AuthRepositoryImpl @Inject constructor(
     override val flowUserRepo: Flow<UserModel>
         get() = authDatabase.flowGetUser
 
-    override fun startLoginRepo(user: UserModel, authLoginListener: AuthLoginListener) {
-        authDatabase.loginFirebaseAuth(user, authLoginListener)
-    }
+    override fun startLoginRepo(
+        user: UserModel,
+        isSuccess: (user: UserModel) -> Unit,
+        isFailure: (message: String) -> Unit
+    ) = authDatabase.loginFirebaseAuth(user, isSuccess, isFailure)
 
-    override fun startSignupRepo(user: UserModel, authSignupListener: AuthSignupListener) {
-        authDatabase.signUpFirebaseAuth(user, authSignupListener)
-    }
+
+    override fun startSignupRepo(
+        user: UserModel,
+        isSuccess: (user: UserModel) -> Unit,
+        isFailure: (message: String) -> Unit
+    ) = authDatabase.signUpFirebaseAuth(user, isSuccess, isFailure)
 
 }

@@ -19,7 +19,6 @@ import com.ronieapps.cleararcteture.R
 @Composable
 fun MessageComposable(message: String, onClickClear: () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth().background(Color.Red)) {
-
         Text(
             text = message,
             color = Color.White,
@@ -28,7 +27,6 @@ fun MessageComposable(message: String, onClickClear: () -> Unit) {
                 .align(alignment = Alignment.CenterStart)
                 .padding(top = 15.dp, bottom = 15.dp, start = 10.dp, end = 48.dp)
         )
-
         IconButton(
             modifier = Modifier.padding(vertical = 5.dp).align(alignment = Alignment.CenterEnd),
             onClick = onClickClear

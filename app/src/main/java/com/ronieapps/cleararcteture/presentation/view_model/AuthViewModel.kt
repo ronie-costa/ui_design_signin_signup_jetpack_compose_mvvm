@@ -10,9 +10,12 @@ import androidx.lifecycle.viewModelScope
 import com.ronieapps.cleararcteture.domain.listener.AuthLoginListener
 import com.ronieapps.cleararcteture.domain.listener.AuthSignupListener
 import com.ronieapps.cleararcteture.domain.model.UserModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
@@ -40,15 +43,15 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
             user.password.length <= 5 -> {
                 _message.value = "Digite no minímo 6 caracteres para efetuar login"
             }
-            else -> repository.startLoginRepo(user, object : AuthLoginListener {
-                override fun onSuccess(user: UserModel) {
-                    _login.value = user
+            else -> {
+                val isSuccess: (user: UserModel) -> Unit = {
+                    _login.value = it
                 }
-
-                override fun onFailed(message: String) {
-                    _message.value = message
+                val isFailure: (message: String) -> Unit = {
+                    _message.value = it
                 }
-            })
+                repository.startLoginRepo(user, isSuccess, isFailure)
+            }
         }
     }
 
@@ -73,23 +76,43 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
                 _message.value = "Campo Senha precisa ser igua Confirmar Senha"
             }
             else -> {
-                repository.startSignupRepo(user, object : AuthSignupListener {
-                    override fun signupSuccess(user: UserModel) {
-                        _signup.value = user
-                    }
-                    override fun signupFailure(message: String) {
-                        _message.value = "Erro ao criar conta, Tente novamente."
-                    }
-                })
+                val isSuccess: (user: UserModel) -> Unit = {
+                    _signup.value = it
+                }
+                val isFailure: (message: String) -> Unit = {
+                    _message.value = "Erro ao criar conta, Tente novamente."
+                }
+                repository.startSignupRepo(user, isSuccess, isFailure)
             }
         }
     }
 
-    fun getUser() {
-        viewModelScope.launch {
-            repository.flowUserRepo.collect {
-                _user.value = it
-            }
+    fun setMessage(message: String) {
+        _message.value = message
+    }
+
+
+    private val _navControllerFlow = MutableStateFlow<UINavController>(UINavController.Initial)
+    val navControllerFlow: StateFlow<UINavController> get() = _navControllerFlow
+
+    private var error = false
+
+    fun navigationController() = viewModelScope.launch {
+        delay(2000L)
+        error = !error
+        _navControllerFlow.value = if (error) UINavController.Failure else UINavController.Success
+    }
+
+    sealed class UINavController {
+        object Success : UINavController()
+        object Failure : UINavController()
+        object Initial : UINavController()
+    }
+
+    fun getUser() = viewModelScope.launch {
+        repository.flowUserRepo.collect {
+            _user.value = it
         }
     }
+
 }

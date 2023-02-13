@@ -1,7 +1,5 @@
 package com.ronieapps.cleararcteture.domain.repository
 
-import com.ronieapps.cleararcteture.domain.listener.AuthLoginListener
-import com.ronieapps.cleararcteture.domain.listener.AuthSignupListener
 import com.ronieapps.cleararcteture.domain.model.UserModel
 import kotlinx.coroutines.flow.Flow
 
@@ -10,11 +8,13 @@ interface AuthRepository {
 
     fun startLoginRepo(
         user: UserModel,
-        authLoginListener: AuthLoginListener
+        isSuccess: (user: UserModel) -> Unit,
+        isFailure: (message: String) -> Unit
     )
 
     fun startSignupRepo(
         user: UserModel,
-        authSignupListener: AuthSignupListener
+        isSuccess: (user: UserModel) -> Unit,
+        isFailure: (message: String) -> Unit
     )
 }

@@ -28,6 +28,7 @@ import com.ronieapps.cleararcteture.domain.model.UserModel
 import com.ronieapps.cleararcteture.presentation.ui.theme.Purple500
 import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
 
+
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun LoginView(
@@ -36,16 +37,9 @@ fun LoginView(
     owner: LifecycleOwner,
     context: Context
 ) {
-    var email by remember {
-        mutableStateOf("")
-    }
-    var password by remember {
-        mutableStateOf("")
-    }
-
-    var passwordStateVisible by remember {
-        mutableStateOf(false)
-    }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordStateVisible by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(

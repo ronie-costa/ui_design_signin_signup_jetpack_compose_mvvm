@@ -2,12 +2,16 @@ package com.ronieapps.cleararcteture.presentation
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Debug
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,28 +28,24 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private lateinit var authViewModel: AuthViewModel
+    private val authViewModel: AuthViewModel by viewModels()
     private lateinit var navController: NavHostController
+
+    private val owner: LifecycleOwner = this
+    private val context: Context = this
+
+    private lateinit var message: MutableState<String>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val owner: LifecycleOwner = this
-        val context: Context = this
-
-        val message = mutableStateOf("")
-
-        val messageObserver = Observer<String> { message.value = it }
-        val loginObserver = Observer<UserModel> { navController.navigate(Routes.HomeView.route) }
-        val signupObserver = Observer<UserModel> { navController.navigate(Routes.HomeView.route) }
+        message = mutableStateOf("")
 
         setContent {
             ClearArctetureTheme {
                 navController = rememberNavController()
-                authViewModel = hiltViewModel()
 
-                NavHost(navController = navController, startDestination = Routes.LoginView.route) {
+                NavHost(navController = navController, startDestination = Routes.HomeView.route) {
                     composable(Routes.LoginView.route) {
                         LoginView(navController, authViewModel, owner, context)
                     }
@@ -65,11 +65,44 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-
-                authViewModel.message.observe(this, messageObserver)
-                authViewModel.login.observe(this, loginObserver)
-                authViewModel.signup.observe(this, signupObserver)
             }
         }
+    }
+
+
+    private fun observers() {
+        authViewModel.message.observe(this) {
+            message.value = it
+        }
+        authViewModel.login.observe(this) {
+            navController.navigate(Routes.HomeView.route)
+        }
+        authViewModel.signup.observe(this) {
+            navController.navigate(Routes.HomeView.route)
+        }
+    }
+
+
+    private fun flows() = lifecycleScope.launchWhenStarted {
+        authViewModel.navControllerFlow.collect { navState ->
+            when (navState) {
+                AuthViewModel.UINavController.Success -> {
+                    navController.navigate(Routes.HomeView.route)
+                }
+                AuthViewModel.UINavController.Failure -> {
+                    authViewModel.setMessage("Erro ao Efetuar Login")
+                    Log.d("Failure", "Erro ao Efetuar Login")
+                }
+                AuthViewModel.UINavController.Initial -> {
+                }
+            }
+        }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        observers()
+        flows()
     }
 }
