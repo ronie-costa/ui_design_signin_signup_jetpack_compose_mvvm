@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
-    private val _authStateFlow = MutableStateFlow<AuthState>(AuthState.Initial)
-    val authStateFlow: Flow<AuthState> = _authStateFlow
+    private val _authStateFlow = MutableSharedFlow<AuthState>()
+    val authStateFlow = _authStateFlow.asSharedFlow()
 
     private val _message = MutableSharedFlow<String>()
     val message = _message.asSharedFlow()

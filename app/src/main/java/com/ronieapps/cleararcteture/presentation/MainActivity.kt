@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                         message.value = it
                     }
                 }
-                lifecycleScope.launchWhenStarted {
+                lifecycleScope.launch {
                     authViewModel.authStateFlow.collect {
                         when (it) {
                             AuthState.Success -> {
