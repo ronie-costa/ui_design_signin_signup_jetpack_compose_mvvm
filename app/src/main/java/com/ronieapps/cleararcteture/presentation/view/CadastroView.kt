@@ -1,7 +1,6 @@
 package com.ronieapps.cleararcteture.presentation.view
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -22,40 +21,32 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.ronieapps.cleararcteture.R
-import com.ronieapps.cleararcteture.domain.model.UserModel
+import com.ronieapps.cleararcteture.core.domain.model.UserModel
+import com.ronieapps.cleararcteture.core.sealed.AuthState
+import com.ronieapps.cleararcteture.core.sealed.Routes
 import com.ronieapps.cleararcteture.presentation.ui.theme.Purple500
 import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
+import kotlinx.coroutines.launch
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "CoroutineCreationDuringComposition")
 @Composable
 fun CadastroView(
     navController: NavController,
     authViewModel: AuthViewModel,
-    owner: LifecycleOwner,
-    context: Context
+    lifecycleScope: LifecycleCoroutineScope
 ) {
-    var name by remember {
-        mutableStateOf("")
-    }
-    var email by remember {
-        mutableStateOf("")
-    }
-    var password by remember {
-        mutableStateOf("")
-    }
-    var confirmPassword by remember {
-        mutableStateOf("")
-    }
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
-    var passwordStateVisible by remember {
-        mutableStateOf(false)
-    }
-    var confirmPasswordStateVisible by remember {
-        mutableStateOf(false)
-    }
+    var passwordStateVisible by remember { mutableStateOf(false) }
+    var confirmPasswordStateVisible by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.background(Color.Cyan)) {

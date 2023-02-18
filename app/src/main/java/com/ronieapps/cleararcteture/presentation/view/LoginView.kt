@@ -1,7 +1,6 @@
 package com.ronieapps.cleararcteture.presentation.view
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,22 +19,21 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.NavController
 import com.ronieapps.cleararcteture.R
-import com.ronieapps.cleararcteture.core.consts.Routes
-import com.ronieapps.cleararcteture.domain.model.UserModel
+import com.ronieapps.cleararcteture.core.sealed.Routes
+import com.ronieapps.cleararcteture.core.domain.model.UserModel
 import com.ronieapps.cleararcteture.presentation.ui.theme.Purple500
 import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
 
 
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "CoroutineCreationDuringComposition")
 @Composable
 fun LoginView(
     navController: NavController,
     authViewModel: AuthViewModel,
-    owner: LifecycleOwner,
-    context: Context
+    lifecycleScope: LifecycleCoroutineScope
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -73,10 +71,12 @@ fun LoginView(
                     horizontalAlignment = Alignment.End
                 ) {
 
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(3.dp)
-                        .background(Purple500))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .background(Purple500)
+                    )
 
                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -119,10 +119,10 @@ fun LoginView(
                             .height(55.dp),
                         singleLine = true,
                         visualTransformation =
-                            if (passwordStateVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
+                        if (passwordStateVisible)
+                            VisualTransformation.None
+                        else
+                            PasswordVisualTransformation(),
                         trailingIcon = {
                             val painter =
                                 if (passwordStateVisible)
@@ -150,7 +150,8 @@ fun LoginView(
                         onClick = { navController.navigate(Routes.CadastroView.route) },
                         shape = RoundedCornerShape(0.dp)
                     ) {
-                        Text("ainda não tem uma conta? Cadastre-se",
+                        Text(
+                            "ainda não tem uma conta? Cadastre-se",
                             modifier = Modifier.padding(horizontal = 0.dp),
                             color = Color.Blue,
                         )
@@ -168,12 +169,11 @@ fun LoginView(
                         ),
                         shape = RoundedCornerShape(0.dp),
                         onClick = {
-                            authViewModel.startLogin(
-                                UserModel(
-                                    email = email,
-                                    password = password
-                                )
+                            val user = UserModel(
+                                email = email,
+                                password = password
                             )
+                            authViewModel.startLogin(user)
                         }
                     ) {
                         Text(text = "Login", color = Color.White)

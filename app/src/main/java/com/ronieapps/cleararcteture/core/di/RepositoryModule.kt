@@ -1,6 +1,6 @@
 package com.ronieapps.cleararcteture.core.di
 
-import com.ronieapps.cleararcteture.domain.repository.AuthRepository
+import com.ronieapps.cleararcteture.core.domain.repository.AuthRepository
 import com.ronieapps.cleararcteture.data.repository.AuthRepositoryImpl
 import dagger.Binds
 import dagger.Module

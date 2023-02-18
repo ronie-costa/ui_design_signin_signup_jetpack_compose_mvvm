@@ -1,4 +1,4 @@
-package com.ronieapps.cleararcteture.core.consts
+package com.ronieapps.cleararcteture.core.sealed
 
 sealed class Routes(val route: String) {
     object LoginView: Routes("login_view")

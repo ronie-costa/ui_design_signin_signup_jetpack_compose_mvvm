@@ -11,87 +11,70 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.NavController
-import com.ronieapps.cleararcteture.R
+import com.ronieapps.cleararcteture.core.utils.ItemListHome
+import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
 
-
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint(
+    "StateFlowValueCalledInComposition",
+    "CoroutineCreationDuringComposition"
+)
 @Composable
-fun HomeView(navController: NavController) {
+fun HomeView(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    lifecycleScope: LifecycleCoroutineScope
+) {
 
     val list: MutableList<String> = mutableListOf(
         "Maria Silva",
         "Carlos Pereira",
-        "Pedro Silva"
+        "Pedro Silva",
     )
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.background(Color.Cyan)) {
-            LazyColumn(modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)) {
+    Column(
+        Modifier
+            .background(Color.Cyan)
+            .fillMaxSize()
+    ) {
+
+        Box {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
                 itemsIndexed(list) { position, _ ->
-                    var favoriteState by remember { mutableStateOf(false) }
-                    Card(
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .fillMaxWidth(),
-                        elevation = 5.dp,
-                        shape = RoundedCornerShape(58.dp)
-                    ) {
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Text(
-                                text = list[position],
-                                color = Color.Gray,
-                                modifier = Modifier
-                                    .padding(horizontal = 20.dp)
-                                    .align(alignment = Alignment.CenterVertically),
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Box {
-                                    IconButton(
-                                        modifier = Modifier
-                                            .align(Alignment.CenterEnd)
-                                            .padding(vertical = 5.dp),
-                                        onClick = { favoriteState = !favoriteState }
-                                    ) {
-                                        val painter: Painter = if (favoriteState) {
-                                            painterResource(id = R.drawable.baseline_favorite_24)
-                                        } else {
-                                            painterResource(id = R.drawable.baseline_favorite_border_24)
-                                        }
-                                        Icon(
-                                            painter = painter,
-                                            tint = Color.Cyan,
-                                            contentDescription = "",
-                                        )
-                                    }
-                                }
-                                Box {
-                                    IconButton(
-                                        modifier = Modifier
-                                            .align(Alignment.CenterEnd)
-                                            .padding(top = 5.dp, bottom = 5.dp, end = 10.dp),
-                                        onClick = { /*TODO*/ }
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.baseline_clear_24),
-                                            tint = Color.Red,
-                                            contentDescription = "",
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    ItemListHome(list = list, position = position)
                 }
             }
         }
+
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(bottom = 20.dp)
+        ) {
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp)
+                    .padding(horizontal = 20.dp),
+                colors = ButtonDefaults.buttonColors(Color.Red),
+                shape = RoundedCornerShape(50.dp),
+                onClick = {
+                    authViewModel.logOut()
+                }
+            ) {
+                Text("SAIR", color = Color.White)
+            }
+        }
+
+
     }
+
+
 }

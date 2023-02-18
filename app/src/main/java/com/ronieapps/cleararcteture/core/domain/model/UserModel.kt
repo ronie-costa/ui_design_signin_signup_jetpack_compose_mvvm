@@ -1,4 +1,4 @@
-package com.ronieapps.cleararcteture.domain.model
+package com.ronieapps.cleararcteture.core.domain.model
 
 data class UserModel(
     val name: String = "",
