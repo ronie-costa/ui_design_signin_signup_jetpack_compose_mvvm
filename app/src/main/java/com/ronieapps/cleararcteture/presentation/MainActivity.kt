@@ -5,7 +5,10 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -32,11 +35,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var authViewModel: AuthViewModel
     private lateinit var navController: NavHostController
 
-    private val owner: LifecycleOwner = this
-    private val context: Context = this
-
     private lateinit var message: MutableState<String>
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,30 +51,20 @@ class MainActivity : ComponentActivity() {
                         message.value = it
                     }
                 }
-                lifecycleScope.launch {
-                    authViewModel.authStateFlow.collect {
-                        when (it) {
-                            AuthState.Success -> {
-                                navController.navigate(Routes.HomeView.route)
-                            }
-                            AuthState.Initial -> {
-                                navController.popBackStack(Routes.HomeView.route, true)
-                            }
-                            AuthState.Failure -> {
-                            }
-                        }
-                    }
-                }
 
-                NavHost(navController = navController, startDestination = Routes.LoginView.route) {
-                    composable(Routes.LoginView.route) {
-                        LoginView(navController, authViewModel, lifecycleScope)
+                NavHost(
+                    navController = navController,
+                    startDestination = Routes.LoginView.route,
+                    modifier = Modifier.background(Color.Magenta)
+                ) {
+                    composable(route = Routes.LoginView.route) {
+                        LoginView(navController, authViewModel)
                     }
                     composable(Routes.CadastroView.route) {
-                        CadastroView(navController, authViewModel, lifecycleScope)
+                        CadastroView(navController, authViewModel)
                     }
                     composable(Routes.HomeView.route) {
-                        HomeView(navController, authViewModel, lifecycleScope)
+                        HomeView(navController, authViewModel)
                     }
                 }
 
@@ -87,7 +76,6 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-
 
             }
         }

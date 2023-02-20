@@ -12,8 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.navigation.NavController
+import com.ronieapps.cleararcteture.core.sealed.AuthState
+import com.ronieapps.cleararcteture.core.sealed.Routes
 import com.ronieapps.cleararcteture.core.utils.ItemListHome
 import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
 
@@ -24,8 +27,7 @@ import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
 @Composable
 fun HomeView(
     navController: NavController,
-    authViewModel: AuthViewModel,
-    lifecycleScope: LifecycleCoroutineScope
+    authViewModel: AuthViewModel
 ) {
 
     val list: MutableList<String> = mutableListOf(
@@ -67,10 +69,9 @@ fun HomeView(
                 shape = RoundedCornerShape(50.dp),
                 onClick = {
                     authViewModel.logOut()
+                    navController.popBackStack()
                 }
-            ) {
-                Text("SAIR", color = Color.White)
-            }
+            ) { Text("SAIR", color = Color.White) }
         }
 
 

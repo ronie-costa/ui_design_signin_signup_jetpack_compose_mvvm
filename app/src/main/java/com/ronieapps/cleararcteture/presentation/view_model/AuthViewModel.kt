@@ -1,5 +1,7 @@
 package com.ronieapps.cleararcteture.presentation.view_model
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.ronieapps.cleararcteture.core.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -12,8 +14,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(private val repository: AuthRepository) : ViewModel() {
-    private val _authStateFlow = MutableSharedFlow<AuthState>()
-    val authStateFlow = _authStateFlow.asSharedFlow()
+
+    val authState: MutableState<AuthState> = mutableStateOf(AuthState.Initial)
 
     private val _message = MutableSharedFlow<String>()
     val message = _message.asSharedFlow()
@@ -38,15 +40,11 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
             }
             else -> {
                 val isSuccess: () -> Unit = {
-                    viewModelScope.launch {
-                        _authStateFlow.emit(AuthState.Success)
-                    }
+                    authState.value = AuthState.Success
                 }
                 val isFailure: (String) -> Unit = {
-                    viewModelScope.launch {
-                        _authStateFlow.emit(AuthState.Failure)
-                        _message.emit(it)
-                    }
+                    authState.value = AuthState.Failure
+                    setMessage(it)
                 }
                 repository.startLoginRepo(user, isSuccess, isFailure)
             }
@@ -76,15 +74,11 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
             }
             else -> {
                 val isSuccess: () -> Unit = {
-                    viewModelScope.launch {
-                        _authStateFlow.emit(AuthState.Success)
-                    }
+                    authState.value = AuthState.Success
                 }
                 val isFailure: (String) -> Unit = {
-                    viewModelScope.launch {
-                        _authStateFlow.emit(AuthState.Failure)
-                        setMessage(it)
-                    }
+                    authState.value = AuthState.Failure
+                    setMessage(it)
                 }
                 repository.startSignupRepo(user, isSuccess, isFailure)
             }
@@ -93,17 +87,10 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository) 
 
     fun logOut() {
         val isLogOut: (Boolean) -> Unit = {
-            when (it) {
-                true -> {
-                    viewModelScope.launch {
-                        _authStateFlow.emit(AuthState.Initial)
-                    }
-                }
-                false -> {
-                    viewModelScope.launch {
-                        _authStateFlow.emit(AuthState.Success)
-                    }
-                }
+            if (it) {
+                authState.value = AuthState.Failure
+            } else {
+                authState.value = AuthState.Success
             }
         }
         repository.logOut(isLogOut)

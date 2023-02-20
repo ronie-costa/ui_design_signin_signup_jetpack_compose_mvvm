@@ -19,11 +19,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ronieapps.cleararcteture.R
 import com.ronieapps.cleararcteture.core.sealed.Routes
 import com.ronieapps.cleararcteture.core.domain.model.UserModel
+import com.ronieapps.cleararcteture.core.sealed.AuthState
 import com.ronieapps.cleararcteture.presentation.ui.theme.Purple500
 import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
 
@@ -32,12 +33,23 @@ import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
 @Composable
 fun LoginView(
     navController: NavController,
-    authViewModel: AuthViewModel,
-    lifecycleScope: LifecycleCoroutineScope
+    authViewModel: AuthViewModel
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordStateVisible by remember { mutableStateOf(false) }
+
+    if (authViewModel.authState.value == AuthState.Success) {
+        LaunchedEffect(key1 = null) {
+            navController.navigate(Routes.HomeView.route)
+        }
+    }
+
+    val visualTransformation = if (passwordStateVisible) {
+        VisualTransformation.None
+    } else {
+        PasswordVisualTransformation()
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -82,12 +94,8 @@ fun LoginView(
 
                     TextField(
                         value = email,
-                        onValueChange = {
-                            email = it
-                        },
-                        label = {
-                            Text("E-mail")
-                        },
+                        onValueChange = { email = it },
+                        label = { Text("E-mail") },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email
                         ),
@@ -118,23 +126,19 @@ fun LoginView(
                             .padding(horizontal = 20.dp)
                             .height(55.dp),
                         singleLine = true,
-                        visualTransformation =
-                        if (passwordStateVisible)
-                            VisualTransformation.None
-                        else
-                            PasswordVisualTransformation(),
+                        visualTransformation = visualTransformation,
                         trailingIcon = {
-                            val painter =
-                                if (passwordStateVisible)
-                                    painterResource(id = R.drawable.baseline_visibility_off_24)
-                                else
-                                    painterResource(id = R.drawable.baseline_visibility_24)
+                            val painter = if (passwordStateVisible) {
+                                painterResource(id = R.drawable.baseline_visibility_off_24)
+                            } else {
+                                painterResource(id = R.drawable.baseline_visibility_24)
+                            }
 
-                            val description =
-                                if (passwordStateVisible)
-                                    "Esconder Senha!"
-                                else
-                                    "Mostrar Senha!"
+                            val description = if (passwordStateVisible) {
+                                "Esconder Senha!"
+                            } else {
+                                "Mostrar Senha!"
+                            }
 
                             IconButton(onClick = { passwordStateVisible = !passwordStateVisible }) {
                                 Icon(painter = painter, contentDescription = description)
@@ -164,17 +168,18 @@ fun LoginView(
                             .fillMaxWidth()
                             .padding(horizontal = 20.dp)
                             .height(55.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = Purple500
-                        ),
                         shape = RoundedCornerShape(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Purple500,
+                        ),
                         onClick = {
-                            val user = UserModel(
-                                email = email,
-                                password = password
+                            authViewModel.startLogin(
+                                user = UserModel(
+                                    email = email,
+                                    password = password
+                                )
                             )
-                            authViewModel.startLogin(user)
-                        }
+                        },
                     ) {
                         Text(text = "Login", color = Color.White)
                     }

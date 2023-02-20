@@ -21,9 +21,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.ronieapps.cleararcteture.R
 import com.ronieapps.cleararcteture.core.domain.model.UserModel
@@ -31,14 +28,12 @@ import com.ronieapps.cleararcteture.core.sealed.AuthState
 import com.ronieapps.cleararcteture.core.sealed.Routes
 import com.ronieapps.cleararcteture.presentation.ui.theme.Purple500
 import com.ronieapps.cleararcteture.presentation.view_model.AuthViewModel
-import kotlinx.coroutines.launch
 
 @SuppressLint("StateFlowValueCalledInComposition", "CoroutineCreationDuringComposition")
 @Composable
 fun CadastroView(
     navController: NavController,
-    authViewModel: AuthViewModel,
-    lifecycleScope: LifecycleCoroutineScope
+    authViewModel: AuthViewModel
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -47,6 +42,18 @@ fun CadastroView(
 
     var passwordStateVisible by remember { mutableStateOf(false) }
     var confirmPasswordStateVisible by remember { mutableStateOf(false) }
+
+    if (authViewModel.authState.value == AuthState.Success) {
+        LaunchedEffect(key1 = null) {
+            navController.navigate(Routes.HomeView.route)
+        }
+    }
+
+    val visualTransformation = if (passwordStateVisible) {
+        VisualTransformation.None
+    } else {
+        PasswordVisualTransformation()
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.background(Color.Cyan)) {
@@ -159,23 +166,19 @@ fun CadastroView(
                             shape = RoundedCornerShape(0.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             singleLine = true,
-                            visualTransformation =
-                            if (passwordStateVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
+                            visualTransformation = visualTransformation,
                             trailingIcon = {
-                                val painter =
-                                    if (passwordStateVisible)
-                                        painterResource(id = R.drawable.baseline_visibility_off_24)
-                                    else
-                                        painterResource(id = R.drawable.baseline_visibility_24)
+                                val painter = if (passwordStateVisible) {
+                                    painterResource(id = R.drawable.baseline_visibility_off_24)
+                                } else {
+                                    painterResource(id = R.drawable.baseline_visibility_24)
+                                }
 
-                                val description =
-                                    if (passwordStateVisible)
-                                        "Esconder Senha!"
-                                    else
-                                        "Mostrar Senha!"
+                                val description = if (passwordStateVisible) {
+                                    "Esconder Senha!"
+                                } else {
+                                    "Mostrar Senha!"
+                                }
 
                                 IconButton(onClick = {
                                     passwordStateVisible = !passwordStateVisible
@@ -200,23 +203,19 @@ fun CadastroView(
                             shape = RoundedCornerShape(0.dp),
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                            visualTransformation =
-                            if (confirmPasswordStateVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
+                            visualTransformation = visualTransformation,
                             trailingIcon = {
-                                val painter =
-                                    if (confirmPasswordStateVisible)
-                                        painterResource(id = R.drawable.baseline_visibility_off_24)
-                                    else
-                                        painterResource(id = R.drawable.baseline_visibility_24)
+                                val painter = if (confirmPasswordStateVisible) {
+                                    painterResource(id = R.drawable.baseline_visibility_off_24)
+                                } else {
+                                    painterResource(id = R.drawable.baseline_visibility_24)
+                                }
 
-                                val description =
-                                    if (confirmPasswordStateVisible)
-                                        "Hide password"
-                                    else
-                                        "Show password"
+                                val description = if (confirmPasswordStateVisible) {
+                                    "Hide password"
+                                } else {
+                                    "Show password"
+                                }
 
                                 IconButton(onClick = {
                                     confirmPasswordStateVisible = !confirmPasswordStateVisible
@@ -235,17 +234,16 @@ fun CadastroView(
                                 .height(55.dp),
                             shape = RoundedCornerShape(0.dp),
                             onClick = {
-                                val userModel = UserModel(
-                                    name = name,
-                                    email = email,
-                                    password = password,
-                                    confirmPassword = confirmPassword
+                                authViewModel.startSignUp(
+                                    user = UserModel(
+                                        name = name,
+                                        email = email,
+                                        password = password,
+                                        confirmPassword = confirmPassword
+                                    )
                                 )
-                                authViewModel.startSignUp(userModel)
                             },
-                        ) {
-                            Text("Criar Conta")
-                        }
+                        ) { Text("Criar Conta") }
 
                         Spacer(modifier = Modifier.height(20.dp))
                     }

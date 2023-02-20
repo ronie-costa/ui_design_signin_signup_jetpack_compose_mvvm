@@ -3,14 +3,10 @@ package com.ronieapps.cleararcteture.data.data_source.database
 
 import com.google.firebase.auth.FirebaseAuth
 import com.ronieapps.cleararcteture.core.domain.model.UserModel
-import kotlinx.coroutines.flow.*
-import java.security.KeyStore.TrustedCertificateEntry
 import javax.inject.Inject
 
 class AuthFirebaseDatabase @Inject constructor() {
-
     private val auth = FirebaseAuth.getInstance()
-
 
     fun loginFirebaseAuth(
         user: UserModel,
@@ -27,7 +23,6 @@ class AuthFirebaseDatabase @Inject constructor() {
         }
     }
 
-
     fun signUpFirebaseAuth(
         user: UserModel,
         isSuccess: () -> Unit,
@@ -38,7 +33,7 @@ class AuthFirebaseDatabase @Inject constructor() {
             isSuccess()
         }
         result.addOnFailureListener {
-            val message = "e-mail ou senha invalido, texte novamente!"
+            val message = "e-mail ou senha invalido, tente novamente!"
             isFailure(message)
         }
     }
